@@ -1,0 +1,24 @@
+[03-Feb-2026 06:11:41 Europe/Berlin] APPROVE CLICKED: status_id=ENZQH54
+[03-Feb-2026 06:11:44 Europe/Berlin] APPROVE SUCCESS: ENZQH54
+[03-Feb-2026 06:11:52 Europe/Berlin] ✅ Approval email sent to ajinasha160@gmail.com
+[03-Feb-2026 06:11:52 Europe/Berlin] Sending push notification to token: ExponentPushToken[95obKJJOadY8ofCA7TaBGm]
+[03-Feb-2026 06:11:54 Europe/Berlin] PUSH SENT: code=200, response={"data":{"status":"ok","id":"019c21ea-1129-7641-9ffe-c16ee0b265ef"}}
+[03-Feb-2026 06:11:54 Europe/Berlin] ✅ Push notification sent successfully
+[03-Feb-2026 11:18:20 Europe/Berlin] REJECT CLICKED: status_id=907ENTF
+[03-Feb-2026 11:18:27 Europe/Berlin] REJECT SUCCESS: 907ENTF
+[03-Feb-2026 11:18:32 Europe/Berlin] ✅ Rejection email sent to just28102021@gmail.com
+[03-Feb-2026 11:18:32 Europe/Berlin] Sending push notification to token: ExponentPushToken[95obKJJOadY8ofCA7TaBGm]
+[03-Feb-2026 11:18:33 Europe/Berlin] PUSH SENT: code=200, response={"data":{"status":"ok","id":"019c2302-d253-700a-8642-64829df22aca"}}
+[03-Feb-2026 11:18:33 Europe/Berlin] ✅ Push notification sent successfully
+[03-Feb-2026 15:44:18 Europe/Berlin] APPROVE CLICKED: status_id=ENZQH54
+[03-Feb-2026 15:44:24 Europe/Berlin] APPROVE CLICKED: status_id=ENZQH54
+[03-Feb-2026 15:44:40 Europe/Berlin] PHP Warning:  file_get_contents(https://gjfyzsjssummpnlkzhoh.supabase.co/rest/v1/admin_signup_requests?status_id=eq.ENZQH54&amp;select=*): Failed to open stream: HTTP request failed! in C:\xampp\htdocs\bus-app-api\approve.php on line 28
+[03-Feb-2026 15:44:40 Europe/Berlin] APPROVE: Record not found for status_id=ENZQH54
+[03-Feb-2026 15:44:43 Europe/Berlin] PHP Warning:  file_get_contents(https://gjfyzsjssummpnlkzhoh.supabase.co/rest/v1/admin_signup_requests?status_id=eq.ENZQH54&amp;select=*): Failed to open stream: HTTP request failed! in C:\xampp\htdocs\bus-app-api\approve.php on line 28
+[03-Feb-2026 15:44:43 Europe/Berlin] APPROVE: Record not found for status_id=ENZQH54
+[04-Feb-2026 05:08:11 Europe/Berlin] APPROVE CLICKED: status_id=X2RP5AD
+[04-Feb-2026 05:08:14 Europe/Berlin] APPROVE SUCCESS: X2RP5AD
+[04-Feb-2026 05:08:20 Europe/Berlin] ✅ Approval email sent to mshakthivel81@gmail.com
+[04-Feb-2026 05:08:20 Europe/Berlin] Sending push notification to token: ExponentPushToken[HklHjTLXUFiFy3OBoQX2Hc]
+[04-Feb-2026 05:08:22 Europe/Berlin] PUSH SENT: code=200, response={"data":{"status":"ok","id":"019c26d6-4232-7428-8d6e-89240d03c6cc"}}
+[04-Feb-2026 05:08:22 Europe/Berlin] ✅ Push notification sent successfully
