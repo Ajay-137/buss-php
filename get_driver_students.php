@@ -1,7 +1,7 @@
-// ========== get_driver_students.php ==========
 <?php
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
+
 require 'config.php';
 
 $driver_id = $_GET['driver_id'] ?? '';
@@ -23,5 +23,5 @@ $response = file_get_contents(
     ])
 );
 
-$data = json_decode($response, true);
+$data = json_decode($response, true) ?: [];
 echo json_encode(['success' => true, 'data' => $data]);

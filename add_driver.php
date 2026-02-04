@@ -1,4 +1,5 @@
 <?php
+// ========== add_driver.php ==========
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -13,16 +14,17 @@ require 'config.php';
 $input = json_decode(file_get_contents("php://input"), true);
 
 $college_code = $input['college_code'] ?? '';
-$reg_number = trim($input['reg_number'] ?? '');
 $name = trim($input['name'] ?? '');
-$dob = $input['dob'] ?? '';
+$password = $input['password'] ?? '';
 $lat = $input['lat'] ?? null;
 $lng = $input['lng'] ?? null;
 
-if (!$college_code || !$reg_number || !$name || !$dob || $lat === null || $lng === null) {
+if (!$college_code || !$name || !$password || $lat === null || $lng === null) {
     echo json_encode(['success' => false, 'error' => 'Missing fields']);
     exit;
 }
+
+$password_hash = password_hash($password, PASSWORD_DEFAULT);
 
 $headers = [
     "Content-Type: application/json",
@@ -32,15 +34,14 @@ $headers = [
 
 $data = [
     'college_code' => $college_code,
-    'reg_number' => $reg_number,
     'name' => $name,
-    'dob' => $dob,
+    'password_hash' => $password_hash,
     'lat' => $lat,
     'lng' => $lng
 ];
 
 $response = file_get_contents(
-    SUPABASE_URL . "/rest/v1/students",
+    SUPABASE_URL . "/rest/v1/drivers",
     false,
     stream_context_create([
         "http" => [

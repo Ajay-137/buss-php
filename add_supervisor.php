@@ -1,7 +1,13 @@
 <?php
-// ========== add_supervisor.php ==========
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    exit;
+}
+
 require 'config.php';
 
 $input = json_decode(file_get_contents("php://input"), true);
@@ -33,38 +39,21 @@ $data = [
     'lng' => $lng
 ];
 
-file_get_contents(
+$response = file_get_contents(
     SUPABASE_URL . "/rest/v1/supervisors",
     false,
     stream_context_create([
         "http" => [
             "method" => "POST",
-            "header" => $headers,
+            "header" => array_merge($headers, ["Prefer: return=representation"]),
             "content" => json_encode($data)
         ]
     ])
 );
 
+if ($response === false) {
+    echo json_encode(['success' => false, 'error' => 'Database error']);
+    exit;
+}
+
 echo json_encode(['success' => true]);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

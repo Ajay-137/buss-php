@@ -1,13 +1,13 @@
-// ========== get_students.php ==========
 <?php
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
+
 require 'config.php';
 
 $college_code = $_GET['college_code'] ?? '';
 
 if (!$college_code) {
-    echo json_encode(['success' => false, 'error' => 'Missing college code']);
+    echo json_encode(['success' => false, 'error' => 'Missing college code', 'data' => []]);
     exit;
 }
 
@@ -28,5 +28,5 @@ $response = file_get_contents(
     ])
 );
 
-$data = json_decode($response, true);
+$data = json_decode($response, true) ?: [];
 echo json_encode(['success' => true, 'data' => $data]);

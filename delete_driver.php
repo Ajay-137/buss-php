@@ -1,7 +1,7 @@
-// ========== delete_driver.php ==========
 <?php
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
+
 require 'config.php';
 
 $input = json_decode(file_get_contents("php://input"), true);
