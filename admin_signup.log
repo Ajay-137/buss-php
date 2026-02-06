@@ -22,3 +22,9 @@
 [04-Feb-2026 05:08:20 Europe/Berlin] Sending push notification to token: ExponentPushToken[HklHjTLXUFiFy3OBoQX2Hc]
 [04-Feb-2026 05:08:22 Europe/Berlin] PUSH SENT: code=200, response={"data":{"status":"ok","id":"019c26d6-4232-7428-8d6e-89240d03c6cc"}}
 [04-Feb-2026 05:08:22 Europe/Berlin] ✅ Push notification sent successfully
+[06-Feb-2026 06:26:46 Europe/Berlin] APPROVE CLICKED: status_id=SKMBJN1
+[06-Feb-2026 06:26:49 Europe/Berlin] APPROVE SUCCESS: SKMBJN1
+[06-Feb-2026 06:26:56 Europe/Berlin] ✅ Approval email sent to christophergnanasigamani54@gmail.com
+[06-Feb-2026 06:26:56 Europe/Berlin] Sending push notification to token: ExponentPushToken[t2g-JIHgPfbYEN-3r721WT]
+[06-Feb-2026 06:26:58 Europe/Berlin] PUSH SENT: code=200, response={"data":{"status":"ok","id":"019c316a-ed38-725e-af04-7db709d227bf"}}
+[06-Feb-2026 06:26:58 Europe/Berlin] ✅ Push notification sent successfully
