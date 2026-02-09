@@ -1,0 +1,40 @@
+[2026-02-09 07:41:00] === DRIVER LOGIN START ===
+[2026-02-09 07:41:00] Config loaded
+[2026-02-09 07:41:00] SUPABASE_URL: "https:\/\/gjfyzsjssummpnlkzhoh.supabase.co"
+[2026-02-09 07:41:00] supabaseRequest function NOT found in config, defining it now
+[2026-02-09 07:41:00] Raw input: "{\"college_code\":\"7282\",\"name\":\"Ajgg\",\"password\":\"Password\",\"expo_push_token\":\"ExponentPushToken[DG8sW6OvsTVcjN4Iw20bWn]\"}"
+[2026-02-09 07:41:00] Decoded data: {"college_code":"7282","name":"Ajgg","password":"Password","expo_push_token":"ExponentPushToken[DG8sW6OvsTVcjN4Iw20bWn]"}
+[2026-02-09 07:41:00] Extracted fields: {"college_code":"7282","name":"Ajgg","password_length":8,"has_push_token":true}
+[2026-02-09 07:41:00] Attempting to fetch driver from Supabase
+[2026-02-09 07:41:00] supabaseRequest called: {"endpoint":"\/rest\/v1\/drivers?college_code=eq.7282&name=eq.Ajgg&select=*","method":"GET"}
+[2026-02-09 07:41:01] Supabase response: {"http_code":200,"curl_error":""}
+[2026-02-09 07:41:01] Drivers fetched: {"count":1,"data":[{"id":5,"college_code":"7282","name":"Ajgg","password":"$2y$10$QWhYRVB3s2pYEDA9TLpwDu0nQQXOT7NJnLq38qTquWpRmbBzMOV3O","lat":8.6881236,"lng":77.7260722,"created_at":"2026-02-06T05:27:58.666033","ride":false,"expo_push_token":"ExponentPushToken[DG8sW6OvsTVcjN4Iw20bWn]"}]}
+[2026-02-09 07:41:01] Driver found: {"id":5,"has_password":true}
+[2026-02-09 07:41:02] Password verification: {"match":true}
+[2026-02-09 07:41:02] Password verified successfully
+[2026-02-09 07:41:02] Storing push token
+[2026-02-09 07:41:02] supabaseRequest called: {"endpoint":"\/rest\/v1\/drivers?id=eq.5","method":"PATCH"}
+[2026-02-09 07:41:02] Supabase response: {"http_code":204,"curl_error":""}
+[2026-02-09 07:41:02] Sending success response: {"success":true,"driver":{"id":5,"lat":8.6881236,"lng":77.7260722,"ride":false}}
+[2026-02-09 07:41:02] === DRIVER LOGIN SUCCESS ===
+[2026-02-09 07:41:02] === DRIVER LOGIN END ===
+[2026-02-09 07:46:40] === DRIVER LOGIN START ===
+[2026-02-09 07:46:40] Config loaded
+[2026-02-09 07:46:40] SUPABASE_URL: "https:\/\/gjfyzsjssummpnlkzhoh.supabase.co"
+[2026-02-09 07:46:40] supabaseRequest function NOT found in config, defining it now
+[2026-02-09 07:46:40] Raw input: "{\"college_code\":\"9500\",\"name\":\"Driver\",\"password\":\"Password\",\"expo_push_token\":\"ExponentPushToken[DG8sW6OvsTVcjN4Iw20bWn]\"}"
+[2026-02-09 07:46:40] Decoded data: {"college_code":"9500","name":"Driver","password":"Password","expo_push_token":"ExponentPushToken[DG8sW6OvsTVcjN4Iw20bWn]"}
+[2026-02-09 07:46:40] Extracted fields: {"college_code":"9500","name":"Driver","password_length":8,"has_push_token":true}
+[2026-02-09 07:46:40] Attempting to fetch driver from Supabase
+[2026-02-09 07:46:40] supabaseRequest called: {"endpoint":"\/rest\/v1\/drivers?college_code=eq.9500&name=eq.Driver&select=*","method":"GET"}
+[2026-02-09 07:46:41] Supabase response: {"http_code":200,"curl_error":""}
+[2026-02-09 07:46:41] Drivers fetched: {"count":1,"data":[{"id":6,"college_code":"9500","name":"Driver","password":"$2y$10$AnaQ9Dl3KIz2sY0Ex930..pkTexpVKY3GAD.bCalzMvqJ.QM5HMTq","lat":8.6862861,"lng":77.7265224,"created_at":"2026-02-09T06:28:29.165194","ride":false,"expo_push_token":"ExponentPushToken[DG8sW6OvsTVcjN4Iw20bWn]"}]}
+[2026-02-09 07:46:41] Driver found: {"id":6,"has_password":true}
+[2026-02-09 07:46:41] Password verification: {"match":true}
+[2026-02-09 07:46:41] Password verified successfully
+[2026-02-09 07:46:41] Storing push token
+[2026-02-09 07:46:41] supabaseRequest called: {"endpoint":"\/rest\/v1\/drivers?id=eq.6","method":"PATCH"}
+[2026-02-09 07:46:42] Supabase response: {"http_code":204,"curl_error":""}
+[2026-02-09 07:46:42] Sending success response: {"success":true,"driver":{"id":6,"lat":8.6862861,"lng":77.7265224,"ride":false}}
+[2026-02-09 07:46:42] === DRIVER LOGIN SUCCESS ===
+[2026-02-09 07:46:42] === DRIVER LOGIN END ===
