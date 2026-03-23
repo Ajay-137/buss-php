@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: bus-app-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
