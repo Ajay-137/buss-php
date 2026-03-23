@@ -63,6 +63,28 @@ try {
 
     $student = $students[0];
 
+    /* Check supervisor_present for this college */
+    $admins = supabaseRequest(
+        "/rest/v1/admins?college_code=eq.$college_code&select=supervisor_present"
+    );
+    
+    $supervisor_present = !empty($admins) && ($admins[0]['supervisor_present'] ?? false);
+
+    /* If student (not parent) and has driver, check if ride is active */
+    if (!$is_parent && $student['driver_id']) {
+        $drivers_check = supabaseRequest(
+            "/rest/v1/drivers?id=eq." . $student['driver_id'] . "&select=ride"
+        );
+
+        if (!empty($drivers_check) && ($drivers_check[0]['ride'] ?? false)) {
+            echo json_encode([
+                "success" => false, 
+                "message" => "Cannot login while bus is on active ride. Please wait until the ride is completed."
+            ]);
+            exit;
+        }
+    }
+
     /* Store push token */
     if ($pushToken) {
         if ($is_parent) {
@@ -102,12 +124,31 @@ try {
 
     /* Fetch driver details if assigned */
     $driver = null;
+    $supervisor = null;
+    $tracking = true; // Default to driver mode
+    
     if ($student['driver_id']) {
         $drivers = supabaseRequest(
             "/rest/v1/drivers?id=eq." . $student['driver_id'] . "&select=id,name,lat,lng"
         );
         if (!empty($drivers)) {
             $driver = $drivers[0];
+        }
+        
+        // Get supervisor for this driver
+        $supervisors = supabaseRequest(
+            "/rest/v1/supervisors?driver_id=eq." . $student['driver_id'] . "&select=id,name,lat,lng"
+        );
+        if (!empty($supervisors)) {
+            $supervisor = $supervisors[0];
+        }
+        
+        // Get tracking mode from admin
+        $admins_tracking = supabaseRequest(
+            "/rest/v1/admins?college_code=eq.$college_code&select=tracking"
+        );
+        if (!empty($admins_tracking)) {
+            $tracking = $admins_tracking[0]['tracking'] ?? true;
         }
     }
 
@@ -121,7 +162,10 @@ try {
             "driver_id" => $student['driver_id'],
             "notification_range" => $student['notification_range'] ?? 300
         ],
-        "driver" => $driver
+        "driver" => $driver,
+        "supervisor" => $supervisor,
+        "supervisor_present" => $supervisor_present,
+        "tracking" => $tracking
     ]);
 
 } catch (Exception $e) {

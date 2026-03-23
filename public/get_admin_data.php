@@ -3,14 +3,7 @@ header('Content-Type: application/json');
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-/*
-|--------------------------------------------------------------------------
-| SUPABASE CONFIG
-|--------------------------------------------------------------------------
-| 🔴 COPY THESE FROM submit_admin_signup.php
-*/
-$SUPABASE_URL = "https://gjfyzsjssummpnlkzhoh.supabase.co";
-$SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqZnl6c2pzc3VtbXBubGt6aG9oIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2OTkyNTkyNSwiZXhwIjoyMDg1NTAxOTI1fQ.EekShu-wB8Eo4Z8nS0krTzGkYSbkvsOP2NTUU1V-0V0";
+require_once __DIR__ . '/../config/secrets.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -33,17 +26,17 @@ if (!$admin_id) {
 |--------------------------------------------------------------------------
 | Table: admins
 */
-$url = $SUPABASE_URL . "/rest/v1/admins"
+$url = SUPABASE_URL . "/rest/v1/admins"
      . "?id=eq." . urlencode($admin_id)
-     . "&select=id,college_code,college_name,email,lat,lng";
+     . "&select=id,college_code,college_name,email,lat,lng,supervisor_present,tracking";
 
 $ch = curl_init($url);
 
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_HTTPHEADER => [
-        "apikey: $SUPABASE_KEY",
-        "Authorization: Bearer $SUPABASE_KEY",
+        "apikey: " . SUPABASE_SERVICE_KEY,
+        "Authorization: Bearer " . SUPABASE_SERVICE_KEY,
         "Content-Type: application/json"
     ]
 ]);
@@ -81,11 +74,13 @@ $admin = $data[0];
 echo json_encode([
     "success" => true,
     "data" => [
-        "admin_id" => (int)$admin['id'],
-        "college_code" => $admin['college_code'],
-        "college_name" => $admin['college_name'],
-        "email" => $admin['email'],
-        "lat" => (float)$admin['lat'],
-        "lng" => (float)$admin['lng']
+        "admin_id"           => (int)$admin['id'],
+        "college_code"       => $admin['college_code'],
+        "college_name"       => $admin['college_name'],
+        "email"              => $admin['email'],
+        "lat"                => (float)$admin['lat'],
+        "lng"                => (float)$admin['lng'],
+        "supervisor_present" => $admin['supervisor_present'] ?? false,
+        "tracking"           => $admin['tracking'] ?? true
     ]
 ]);

@@ -4,7 +4,7 @@ require 'mailer.php';
 require 'push_notifications.php'; // ✅ Include push notification utility
 
 ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/admin_signup.log');
+// ini_set('error_log', __DIR__ . '/admin_signup.log');
 
 // Supabase headers
 $headers = [

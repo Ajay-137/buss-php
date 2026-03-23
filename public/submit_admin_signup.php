@@ -155,8 +155,8 @@ error_log("✅ Successfully inserted into admin_signup_requests with status_id: 
 
 /* ---------- SEND EMAIL TO SUPER ADMIN ---------- */
 try {
-    $approveLink = "http://10.87.56.61/bus-app-api/approve.php?status_id=$status_id";
-    $rejectLink  = "http://10.87.56.61/bus-app-api/reject.php?status_id=$status_id";
+    $approveLink = "http://10.79.133.61/bus-app-api/approve.php?status_id=$status_id";
+    $rejectLink  = "http://10.79.133.61/bus-app-api/reject.php?status_id=$status_id";
 
     $mail->addAddress("ajaymg137@gmail.com");
     $mail->Subject = "New Admin Approval Request - $college_name";
