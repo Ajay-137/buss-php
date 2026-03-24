@@ -6,8 +6,6 @@ require __DIR__ . '/PHPMailer/src/Exception.php';
 require __DIR__ . '/PHPMailer/src/PHPMailer.php';
 require __DIR__ . '/PHPMailer/src/SMTP.php';
 
-// NOTE: config.php is loaded by the parent file - do NOT load it here
-
 $mail = new PHPMailer(true);
 
 try {
@@ -16,8 +14,8 @@ try {
     $mail->SMTPAuth   = true;
     $mail->Username   = MAIL_USERNAME;
     $mail->Password   = MAIL_PASSWORD;
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->Port       = 587;
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;  // Changed from STARTTLS to SSL
+    $mail->Port       = 465;                           // Changed from 587 to 465
 
     $mail->setFrom(MAIL_USERNAME, 'Bus App');
     $mail->isHTML(true);
