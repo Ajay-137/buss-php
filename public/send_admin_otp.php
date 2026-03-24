@@ -59,14 +59,33 @@ $insertResponse = file_get_contents(
 error_log("OTP insert response: " . $insertResponse);
 
 // Send email
-try {
-    $mail->addAddress($email);
-    $mail->Subject = "College Registration OTP";
-    $mail->Body = "Your OTP is: <b>$otp</b>. Valid for 5 minutes.";
-    $mail->send();
-    error_log("Email sent successfully to: $email");
+// Send email via Brevo API (no SMTP needed)
+$emailPayload = json_encode([
+    "sender" => ["name" => "Bus App", "email" => "ajaymg137@gmail.com"],
+    "to" => [["email" => $email]],
+    "subject" => "College Registration OTP",
+    "htmlContent" => "Your OTP is: <b>$otp</b>. Valid for 5 minutes."
+]);
+
+$ch = curl_init("https://api.brevo.com/v3/smtp/email");
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_POSTFIELDS => $emailPayload,
+    CURLOPT_HTTPHEADER => [
+        "api-key: " . getenv('BREVO_API_KEY'),
+        "Content-Type: application/json"
+    ]
+]);
+
+$brevoResponse = curl_exec($ch);
+$brevoCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+
+error_log("Brevo response: $brevoCode - $brevoResponse");
+
+if ($brevoCode === 201) {
     echo json_encode(['success' => true]);
-} catch (Exception $e) {
-    error_log("MAIL ERROR: " . $e->getMessage());
-    echo json_encode(['success' => false, 'error' => 'Email failed: ' . $e->getMessage()]);
+} else {
+    echo json_encode(['success' => false, 'error' => 'Email failed']);
 }
