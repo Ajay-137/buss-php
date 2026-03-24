@@ -5,7 +5,8 @@ use PHPMailer\PHPMailer\Exception;
 require __DIR__ . '/PHPMailer/src/Exception.php';
 require __DIR__ . '/PHPMailer/src/PHPMailer.php';
 require __DIR__ . '/PHPMailer/src/SMTP.php';
-require 'config.php';
+
+// NOTE: config.php is loaded by the parent file - do NOT load it here
 
 $mail = new PHPMailer(true);
 
@@ -21,5 +22,5 @@ try {
     $mail->setFrom(MAIL_USERNAME, 'Bus App');
     $mail->isHTML(true);
 } catch (Exception $e) {
-    // Fail silently
+    error_log("Mailer setup error: " . $e->getMessage());
 }
