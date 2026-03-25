@@ -1,5 +1,5 @@
-
 <?php
+ob_start();
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
@@ -30,5 +30,5 @@ $response = file_get_contents(
 );
 
 $data = json_decode($response, true) ?: [];
+ob_end_clean();
 echo json_encode(['success' => true, 'data' => $data]);
-
