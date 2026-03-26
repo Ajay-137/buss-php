@@ -72,7 +72,8 @@ try {
         'email' => $admin['email'],
         'college_name' => $admin['college_name'],
         'college_code' => $admin['college_code'],
-        'admin_id' => $admin['id']
+        'admin_id' => $admin['id'],
+        'supervisor_present' => $admin['supervisor_present'] ?? false
     ]);
 
 } catch (Exception $e) {
