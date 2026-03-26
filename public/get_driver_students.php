@@ -18,7 +18,7 @@ $headers = [
 ];
 
 $response = file_get_contents(
-    SUPABASE_URL . "/rest/v1/students?driver_id=eq.$driver_id&select=*&order=id.asc",
+    SUPABASE_URL . "/rest/v1/students?driver_id=eq.$driver_id&select=*&order=stop_order.asc,id.asc",
     false,
     stream_context_create([
         "http" => [
