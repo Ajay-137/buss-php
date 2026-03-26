@@ -28,7 +28,7 @@ if (!$admin_id) {
 */
 $url = SUPABASE_URL . "/rest/v1/admins"
      . "?id=eq." . $admin_id
-     . "&select=id,college_code,college_name,email,lat,lng,supervisor_present,tracking";
+     . "&select=id,college_code,college_name,email,lat,lng,supervisor_present";
 
 $ch = curl_init($url);
 
