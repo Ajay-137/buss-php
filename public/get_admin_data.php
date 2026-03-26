@@ -70,6 +70,7 @@ if ($http_code !== 200 || empty($data)) {
 |--------------------------------------------------------------------------
 */
 $admin = $data[0];
+error_log("ADMIN RAW: " . json_encode($admin));
 
 echo json_encode([
     "success" => true,
@@ -80,7 +81,7 @@ echo json_encode([
         "email"              => $admin['email'],
         "lat"                => (float)$admin['lat'],
         "lng"                => (float)$admin['lng'],
-        "supervisor_present" => $admin['supervisor_present'] ?? false,
+        "supervisor_present" => isset($admin['supervisor_present']) ? (bool)$admin['supervisor_present'] : false,
         "tracking"           => $admin['tracking'] ?? true
     ]
 ]);
