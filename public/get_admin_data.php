@@ -10,7 +10,7 @@ require 'config.php';
 | INPUT
 |--------------------------------------------------------------------------
 */
-$admin_id = $_GET['admin_id'] ?? null;
+$admin_id = isset($_GET['admin_id']) ? (int)$_GET['admin_id'] : null;
 
 if (!$admin_id) {
     echo json_encode([
@@ -27,7 +27,7 @@ if (!$admin_id) {
 | Table: admins
 */
 $url = SUPABASE_URL . "/rest/v1/admins"
-     . "?id=eq." . urlencode($admin_id)
+     . "?id=eq." . $admin_id
      . "&select=id,college_code,college_name,email,lat,lng,supervisor_present,tracking";
 
 $ch = curl_init($url);
@@ -53,6 +53,10 @@ if ($response === false) {
 
 $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
+
+error_log("ADMIN ID RECEIVED: " . $admin_id);
+error_log("FINAL URL: " . $url);
+error_log("RAW RESPONSE: " . $response);
 
 $data = json_decode($response, true);
 
