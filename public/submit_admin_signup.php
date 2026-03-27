@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require 'config.php';
-require 'mailer.php';
+
 
 /* ---------- READ INPUT ---------- */
 $input = json_decode(file_get_contents("php://input"), true);
@@ -155,149 +155,76 @@ error_log("✅ Successfully inserted into admin_signup_requests with status_id: 
 
 /* ---------- SEND EMAIL TO SUPER ADMIN ---------- */
 try {
-    $approveLink = "http://10.79.133.61/bus-app-api/approve.php?status_id=$status_id";
-    $rejectLink  = "http://10.79.133.61/bus-app-api/reject.php?status_id=$status_id";
-
-    $mail->addAddress("ajaymg137@gmail.com");
-    $mail->Subject = "New Admin Approval Request - $college_name";
-
-    $mail->Body = "
+    $emailBody = "
         <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-            <h2 style='color: #2E1A8A; border-bottom: 3px solid #6A3BEF; padding-bottom: 10px;'>
-                🔔 New College Admin Registration
-            </h2>
-
-            <div style='background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;'>
-                <h3 style='margin-top: 0; color: #333;'>College Information</h3>
-                <table style='width: 100%;'>
-                    <tr>
-                        <td style='padding: 8px 0;'><strong>College Name:</strong></td>
-                        <td style='padding: 8px 0;'>$college_name</td>
-                    </tr>
-                    <tr>
-                        <td style='padding: 8px 0;'><strong>College Code:</strong></td>
-                        <td style='padding: 8px 0;'>$college_code</td>
-                    </tr>
-                    <tr>
-                        <td style='padding: 8px 0;'><strong>Email:</strong></td>
-                        <td style='padding: 8px 0;'>$email</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div style='background: #f0f7ff; padding: 20px; border-radius: 8px; margin: 20px 0;'>
-                <h3 style='margin-top: 0; color: #333;'>Location Details</h3>
-                <p><strong>Address:</strong> $address</p>
-                <p><strong>Coordinates:</strong> Lat: $lat, Lng: $lng</p>
-            </div>
-
-            <div style='background: #fff3e0; padding: 20px; border-radius: 8px; margin: 20px 0;'>
-                <h3 style='margin-top: 0; color: #333;'>Policy Information</h3>
-                <p><strong>Student Phones Allowed:</strong> " . ($phones_allowed ? "✅ Yes" : "❌ No") . "</p>
-                <p><strong>Supervisor Present:</strong> " . ($supervisor_present ? "✅ Yes" : "❌ No") . "</p>
-            </div>
-
-            <div style='background: #e8f5e9; padding: 15px; border-radius: 8px; border-left: 4px solid #4CAF50;'>
-                <p style='margin: 0;'><strong>Status ID:</strong> <span style='font-size: 18px; color: #2196F3;'>$status_id</span></p>
-            </div>
-
+            <h2 style='color: #2E1A8A;'>🔔 New College Admin Registration</h2>
+            <p><strong>College:</strong> $college_name ($college_code)</p>
+            <p><strong>Email:</strong> $email</p>
+            <p><strong>Address:</strong> $address</p>
+            <p><strong>Phones Allowed:</strong> " . ($phones_allowed ? "✅ Yes" : "❌ No") . "</p>
+            <p><strong>Supervisor Present:</strong> " . ($supervisor_present ? "✅ Yes" : "❌ No") . "</p>
+            <p><strong>Status ID:</strong> $status_id</p>
             <div style='margin: 30px 0; text-align: center;'>
-                <a href='$approveLink' style='background: #4CAF50; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 10px;'>
-                    ✅ APPROVE
-                </a>
-                <a href='$rejectLink' style='background: #f44336; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 10px;'>
-                    ❌ REJECT
-                </a>
+                <a href='$approveLink' style='background:#4CAF50;color:white;padding:12px 30px;text-decoration:none;border-radius:5px;margin:10px;display:inline-block;'>✅ APPROVE</a>
+                <a href='$rejectLink' style='background:#f44336;color:white;padding:12px 30px;text-decoration:none;border-radius:5px;margin:10px;display:inline-block;'>❌ REJECT</a>
             </div>
-
-            <p style='color: #666; font-size: 12px; margin-top: 30px;'>
-                This is an automated notification from the Bus Tracking System.
-            </p>
         </div>
     ";
 
-    $mail->send();
-    error_log("✅ Approval email sent to super admin");
+    $ch = curl_init("https://api.brevo.com/v3/smtp/email");
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => json_encode([
+            "sender" => ["name" => "Bus App", "email" => "ajaymg137@gmail.com"],
+            "to" => [["email" => "ajaymg137@gmail.com"]],
+            "subject" => "New Admin Approval Request - $college_name",
+            "htmlContent" => $emailBody
+        ]),
+        CURLOPT_HTTPHEADER => ["api-key: " . getenv('BREVO_API_KEY'), "Content-Type: application/json"]
+    ]);
+    $brevoCode = curl_getinfo(curl_exec($ch) ? $ch : $ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    error_log("Super admin email brevo code: $brevoCode");
 } catch (Exception $e) {
     error_log("❌ Failed to send approval email: " . $e->getMessage());
 }
 
 /* ---------- SEND CONFIRMATION EMAIL TO COLLEGE ADMIN ---------- */
 try {
-    $mail->clearAddresses();
-    $mail->addAddress($email);
-    $mail->Subject = "Registration Submitted - Status ID: $status_id";
-
-    $mail->Body = "
+    $confirmBody = "
         <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-            <h2 style='color: #2E1A8A; border-bottom: 3px solid #6A3BEF; padding-bottom: 10px;'>
-                ✅ Registration Request Submitted
-            </h2>
-
+            <h2 style='color: #2E1A8A;'>✅ Registration Request Submitted</h2>
             <p>Dear <strong>$college_name</strong> Administrator,</p>
-
-            <p>Thank you for registering with our Bus Tracking System. Your registration request has been successfully submitted and is currently under review.</p>
-
-            <div style='background: #E3F2FD; padding: 20px; border-radius: 8px; border-left: 4px solid #2196F3; margin: 25px 0;'>
-                <h3 style='margin-top: 0; color: #1976D2;'>🔑 Your Status ID</h3>
-                <p style='font-size: 28px; font-weight: bold; color: #1976D2; margin: 15px 0; letter-spacing: 2px;'>
-                    $status_id
-                </p>
-                <p style='font-size: 13px; color: #555; margin-bottom: 0;'>
-                    ⚠️ Please save this ID. You can use it to check your registration status.
-                </p>
+            <p>Your registration has been submitted and is under review.</p>
+            <div style='background:#E3F2FD;padding:20px;border-radius:8px;border-left:4px solid #2196F3;margin:25px 0;'>
+                <h3 style='color:#1976D2;margin-top:0;'>🔑 Your Status ID</h3>
+                <p style='font-size:28px;font-weight:bold;color:#1976D2;letter-spacing:2px;'>$status_id</p>
+                <p style='font-size:13px;color:#555;'>⚠️ Save this ID to check your registration status.</p>
             </div>
-
-            <div style='background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;'>
-                <h3 style='margin-top: 0; color: #333;'>📋 Submitted Details</h3>
-                <table style='width: 100%;'>
-                    <tr>
-                        <td style='padding: 8px 0;'><strong>College Name:</strong></td>
-                        <td style='padding: 8px 0;'>$college_name</td>
-                    </tr>
-                    <tr>
-                        <td style='padding: 8px 0;'><strong>College Code:</strong></td>
-                        <td style='padding: 8px 0;'>$college_code</td>
-                    </tr>
-                    <tr>
-                        <td style='padding: 8px 0;'><strong>Email:</strong></td>
-                        <td style='padding: 8px 0;'>$email</td>
-                    </tr>
-                    <tr>
-                        <td style='padding: 8px 0;'><strong>Location:</strong></td>
-                        <td style='padding: 8px 0;'>$address</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div style='background: #fff3e0; padding: 20px; border-radius: 8px;'>
-                <h3 style='margin-top: 0; color: #333;'>⏳ What Happens Next?</h3>
-                <ol style='line-height: 1.8;'>
-                    <li>Our team will review your registration details (typically within 24-48 hours)</li>
-                    <li>You will receive an email notification once your account is <strong>approved</strong> or if we need additional information</li>
-                    <li>After approval, you can log in to the admin portal using your registered email and password</li>
-                </ol>
-            </div>
-
-            <div style='background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 20px 0;'>
-                <p style='margin: 0; color: #2e7d32;'>
-                    <strong>💡 Tip:</strong> Keep this email for your records. You'll need your Status ID if you contact support.
-                </p>
-            </div>
-
-            <p style='color: #666; font-size: 12px; margin-top: 30px; border-top: 1px solid #ddd; padding-top: 15px;'>
-                <strong>Note:</strong> This is an automated email. Please do not reply to this message.<br>
-                If you have any questions, please contact our support team.<br><br>
-                If you did not register for this service, please ignore this email.
-            </p>
+            <p><strong>College:</strong> $college_name | <strong>Code:</strong> $college_code</p>
+            <p><strong>Email:</strong> $email | <strong>Location:</strong> $address</p>
+            <p>Our team will review within 24-48 hours. You'll be notified once approved.</p>
         </div>
     ";
 
-    $mail->send();
-    error_log("✅ Confirmation email sent to college admin: $email");
+    $ch = curl_init("https://api.brevo.com/v3/smtp/email");
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => json_encode([
+            "sender" => ["name" => "Bus App", "email" => "ajaymg137@gmail.com"],
+            "to" => [["email" => $email]],
+            "subject" => "Registration Submitted - Status ID: $status_id",
+            "htmlContent" => $confirmBody
+        ]),
+        CURLOPT_HTTPHEADER => ["api-key: " . getenv('BREVO_API_KEY'), "Content-Type: application/json"]
+    ]);
+    curl_exec($ch);
+    curl_close($ch);
+    error_log("✅ Confirmation email sent to: $email");
 } catch (Exception $e) {
     error_log("❌ Failed to send confirmation email: " . $e->getMessage());
-    // Don't fail the signup if confirmation email fails
 }
 
 /* ---------- SUCCESS RESPONSE ---------- */
