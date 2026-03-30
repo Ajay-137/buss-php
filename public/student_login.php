@@ -71,12 +71,13 @@ try {
     $supervisor_present = !empty($admins) && ($admins[0]['supervisor_present'] ?? false);
 
     /* If student (not parent) and has driver, check if ride is active */
-    if (!$is_parent && $student['driver_id']) {
+    $driver_id = $student['driver_id'] ?? null;
+    if (!$is_parent && !empty($driver_id)) {
         $drivers_check = supabaseRequest(
-            "/rest/v1/drivers?id=eq." . $student['driver_id'] . "&select=ride"
+            "/rest/v1/drivers?id=eq." . intval($driver_id) . "&select=ride"
         );
 
-        if (!empty($drivers_check) && ($drivers_check[0]['ride'] ?? false)) {
+        if (!empty($drivers_check) && ($drivers_check[0]['ride'] === true || $drivers_check[0]['ride'] === 't' || $drivers_check[0]['ride'] === 1)) {
             echo json_encode([
                 "success" => false, 
                 "message" => "Cannot login while bus is on active ride. Please wait until the ride is completed."
@@ -125,14 +126,15 @@ try {
     /* Fetch driver details if assigned */
     $driver = null;
     $supervisor = null;
-    $tracking = true; // Default to driver mode
+    $gps_active = true;
     
     if ($student['driver_id']) {
         $drivers = supabaseRequest(
-            "/rest/v1/drivers?id=eq." . $student['driver_id'] . "&select=id,name,lat,lng"
+            "/rest/v1/drivers?id=eq." . $student['driver_id'] . "&select=id,name,lat,lng,gps_active"
         );
         if (!empty($drivers)) {
             $driver = $drivers[0];
+            $gps_active = $drivers[0]['gps_active'] ?? true;
         }
         
         // Get supervisor for this driver
@@ -141,14 +143,6 @@ try {
         );
         if (!empty($supervisors)) {
             $supervisor = $supervisors[0];
-        }
-        
-        // Get tracking mode from admin
-        $admins_tracking = supabaseRequest(
-            "/rest/v1/admins?college_code=eq.$college_code&select=tracking"
-        );
-        if (!empty($admins_tracking)) {
-            $tracking = $admins_tracking[0]['tracking'] ?? true;
         }
     }
 
@@ -160,12 +154,13 @@ try {
             "lat"  => (float)$student['lat'],
             "lng"  => (float)$student['lng'],
             "driver_id" => $student['driver_id'],
-            "notification_range" => $student['notification_range'] ?? 300
+            "notification_range" => $student['notification_range'] ?? 300,
+            "stop_order" => $student['stop_order'] ?? 0
         ],
         "driver" => $driver,
         "supervisor" => $supervisor,
         "supervisor_present" => $supervisor_present,
-        "tracking" => $tracking
+        "gps_active" => $gps_active
     ]);
 
 } catch (Exception $e) {
