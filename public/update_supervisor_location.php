@@ -68,16 +68,24 @@ if (!empty($supervisors_info)) {
     $college_code = $supervisors_info[0]['college_code'];
     $driver_id = $supervisors_info[0]['driver_id'];
     
-    // Check if admin has tracking=false (supervisor mode)
+    // Check supervisor_present for this college
     $admins = supabaseRequest(
-        "/rest/v1/admins?college_code=eq.$college_code&select=tracking,supervisor_present"
+        "/rest/v1/admins?college_code=eq.$college_code&select=supervisor_present"
     );
     
-    $tracking = !empty($admins) ? ($admins[0]['tracking'] ?? true) : true;
     $supervisor_present = !empty($admins) && ($admins[0]['supervisor_present'] ?? false);
     
-    // If tracking=false (supervisor mode) AND supervisor_present=false, do auto-boarding
-    if (!$tracking && !$supervisor_present && $driver_id) {
+    // Check gps_active on the driver — if false, supervisor GPS is being used for tracking
+    $gps_active = true;
+    if ($driver_id) {
+        $driver_info = supabaseRequest(
+            "/rest/v1/drivers?id=eq.$driver_id&select=gps_active"
+        );
+        $gps_active = !empty($driver_info) ? ($driver_info[0]['gps_active'] ?? true) : true;
+    }
+    
+    // If supervisor is doing the tracking (gps_active=false) AND supervisor_present=false, do auto-boarding
+    if (!$gps_active && !$supervisor_present && $driver_id) {
         // Get students assigned to this driver who haven't been notified
         $students = supabaseRequest(
             "/rest/v1/students?driver_id=eq.$driver_id&notified=eq.false&select=id,name,lat,lng,expo_push_token"
