@@ -153,6 +153,8 @@ if (!$insertedData || count($insertedData) === 0) {
 
 error_log("✅ Successfully inserted into admin_signup_requests with status_id: $status_id");
 
+$approveLink = "https://buss-app-api.onrender.com/approve.php?status_id=$status_id";
+$rejectLink  = "https://buss-app-api.onrender.com/reject.php?status_id=$status_id";
 /* ---------- SEND EMAIL TO SUPER ADMIN ---------- */
 try {
     $emailBody = "
