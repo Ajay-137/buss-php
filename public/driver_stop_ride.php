@@ -52,18 +52,20 @@ $students = supabaseRequest(
     "/rest/v1/students?driver_id=eq.$driver_id&select=id,expo_push_token,name"
 );
 
-// Collect student IDs and push tokens
-$student_ids = [];
-$tokens = [];
+// Collect student IDs and tokens separately
+$student_ids    = [];
+$student_tokens = [];
 
 foreach ($students as $s) {
     $student_ids[] = $s['id'];
     if (!empty($s['expo_push_token'])) {
-        $tokens[] = $s['expo_push_token'];
+        $student_tokens[] = $s['expo_push_token'];
     }
 }
 
 // Fetch parents of these students
+$parent_tokens = [];
+
 if (!empty($student_ids)) {
     $ids_str = implode(',', $student_ids);
     $parents = supabaseRequest(
@@ -72,30 +74,42 @@ if (!empty($student_ids)) {
 
     foreach ($parents as $p) {
         if (!empty($p['expo_push_token'])) {
-            $tokens[] = $p['expo_push_token'];
+            $parent_tokens[] = $p['expo_push_token'];
         }
     }
 }
 
-// Send "reached college/school" notifications
-if (!empty($tokens)) {
-    $payload = [];
-    foreach ($tokens as $token) {
-        $payload[] = [
-            "to" => $token,
-            "title" => "🎓 Reached Destination",
-            "body" => "Student has reached college/school safely",
-            "sound" => "default",
-            "priority" => "high"
-        ];
-    }
+// Build payload with separate messages for students and parents
+$payload = [];
 
+foreach ($student_tokens as $token) {
+    $payload[] = [
+        "to"       => $token,
+        "title"    => "🎓 Destination Reached",
+        "body"     => "You have reached college/school safely. Have a great day!",
+        "sound"    => "default",
+        "priority" => "high"
+    ];
+}
+
+foreach ($parent_tokens as $token) {
+    $payload[] = [
+        "to"       => $token,
+        "title"    => "🎓 Destination Reached",
+        "body"     => "Your child has reached college/school safely.",
+        "sound"    => "default",
+        "priority" => "high"
+    ];
+}
+
+// Send notifications
+if (!empty($payload)) {
     $ch = curl_init("https://exp.host/--/api/v2/push/send");
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POST => true,
-        CURLOPT_HTTPHEADER => ["Content-Type: application/json"],
-        CURLOPT_POSTFIELDS => json_encode($payload)
+        CURLOPT_POST           => true,
+        CURLOPT_HTTPHEADER     => ["Content-Type: application/json"],
+        CURLOPT_POSTFIELDS     => json_encode($payload)
     ]);
     curl_exec($ch);
     curl_close($ch);

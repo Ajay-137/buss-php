@@ -26,9 +26,9 @@ if (empty($drivers)) {
 
 $driver = $drivers[0];
 
-/* Fetch students assigned to this driver */
+/* Fetch students assigned to this driver — include id for parent lookup */
 $students = supabaseRequest(
-    "/rest/v1/students?driver_id=eq.$driver_id&select=expo_push_token,name"
+    "/rest/v1/students?driver_id=eq.$driver_id&select=id,expo_push_token,name"
 );
 
 /* Fetch admin for this college */
@@ -38,22 +38,52 @@ $admins = supabaseRequest(
 
 /* Notification content */
 $title = "Bus Update";
-$body  = $type === "traffic"
+
+$student_body = $type === "traffic"
+    ? "Your bus is delayed due to traffic. Driver: " . $driver['name']
+    : "Bus breakdown or issue reported. Driver: " . $driver['name'];
+
+$parent_body = $type === "traffic"
+    ? "Your child's bus is delayed due to traffic. Driver: " . $driver['name']
+    : "Your child's bus has reported a breakdown or issue. Driver: " . $driver['name'];
+
+$admin_body = $type === "traffic"
     ? "Bus delayed due to traffic. Driver: " . $driver['name']
     : "Bus breakdown or issue reported. Driver: " . $driver['name'];
 
-/* Collect push tokens */
-$tokens = [];
+/* Collect student tokens */
+$student_tokens = [];
+$student_ids = [];
 
 foreach ($students as $s) {
+    $student_ids[] = $s['id'];
     if (!empty($s['expo_push_token'])) {
-        $tokens[] = $s['expo_push_token'];
+        $student_tokens[] = $s['expo_push_token'];
     }
 }
 
+/* Fetch parents of these students */
+$parent_tokens = [];
+
+if (!empty($student_ids)) {
+    $ids_str = implode(',', $student_ids);
+    $parents = supabaseRequest(
+        "/rest/v1/parents?student_id=in.($ids_str)&select=expo_push_token"
+    );
+
+    foreach ($parents as $p) {
+        if (!empty($p['expo_push_token'])) {
+            $parent_tokens[] = $p['expo_push_token'];
+        }
+    }
+}
+
+/* Collect admin tokens + send email */
+$admin_tokens = [];
+
 foreach ($admins as $a) {
     if (!empty($a['expo_push_token'])) {
-        $tokens[] = $a['expo_push_token'];
+        $admin_tokens[] = $a['expo_push_token'];
     }
 
     /* Email admin */
@@ -75,7 +105,7 @@ foreach ($admins as $a) {
 
                     <div style='background: #E3F2FD; padding: 20px; border-radius: 8px; margin: 20px 0;'>
                         <h3 style='margin-top: 0; color: #1976D2;'>Message</h3>
-                        <p style='font-size: 16px; color: #333;'>$body</p>
+                        <p style='font-size: 16px; color: #333;'>$admin_body</p>
                     </div>
 
                     <div style='background: #f9f9f9; padding: 15px; border-radius: 8px;'>
@@ -97,20 +127,41 @@ foreach ($admins as $a) {
     }
 }
 
+/* Build push payload with separate messages per group */
+$payload = [];
+
+foreach ($student_tokens as $token) {
+    $payload[] = [
+        "to"       => $token,
+        "title"    => $title,
+        "body"     => $student_body,
+        "sound"    => "default",
+        "priority" => "high"
+    ];
+}
+
+foreach ($parent_tokens as $token) {
+    $payload[] = [
+        "to"       => $token,
+        "title"    => $title,
+        "body"     => $parent_body,
+        "sound"    => "default",
+        "priority" => "high"
+    ];
+}
+
+foreach ($admin_tokens as $token) {
+    $payload[] = [
+        "to"       => $token,
+        "title"    => $title,
+        "body"     => $admin_body,
+        "sound"    => "default",
+        "priority" => "high"
+    ];
+}
+
 /* Send Expo push notifications */
-if (!empty($tokens)) {
-    $payload = [];
-
-    foreach ($tokens as $token) {
-        $payload[] = [
-            "to"    => $token,
-            "title" => $title,
-            "body"  => $body,
-            "sound" => "default",
-            "priority" => "high"
-        ];
-    }
-
+if (!empty($payload)) {
     $ch = curl_init("https://exp.host/--/api/v2/push/send");
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
@@ -135,5 +186,6 @@ echo json_encode([
     "success" => true,
     "message" => "Notifications sent successfully",
     "students_notified" => count($students),
-    "admins_notified" => count($admins)
+    "parents_notified"  => count($parent_tokens),
+    "admins_notified"   => count($admins)
 ]);
