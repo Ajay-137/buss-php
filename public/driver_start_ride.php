@@ -109,17 +109,30 @@ foreach ($parent_tokens as $token) {
     ];
 }
 
-// Send notifications
+// Send notifications with full debug output
+$expo_response  = null;
+$expo_http_code = null;
+
 if (!empty($payload)) {
     $ch = curl_init("https://exp.host/--/api/v2/push/send");
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POST           => true,
-        CURLOPT_HTTPHEADER     => ["Content-Type: application/json"],
+        CURLOPT_HTTPHEADER     => ["Content-Type: application/json", "Accept: application/json"],
         CURLOPT_POSTFIELDS     => json_encode($payload)
     ]);
-    curl_exec($ch);
+    $expo_response  = curl_exec($ch);
+    $expo_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 }
 
-echo json_encode(["success" => true]);
+echo json_encode([
+    "success"              => true,
+    "debug_driver_id"      => $driver_id,
+    "debug_students_found" => count($students),
+    "debug_student_tokens" => $student_tokens,
+    "debug_parent_tokens"  => $parent_tokens,
+    "debug_payload_sent"   => $payload,
+    "debug_expo_http_code" => $expo_http_code,
+    "debug_expo_response"  => json_decode($expo_response, true)
+]);
